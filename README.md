@@ -1,4 +1,4 @@
-# Distributed MAPE-K Experimental Prototype
+# Distributed MAPE Experimental Prototype
 
 This repository contains a reference implementation developed for an academic project to evaluate different MAPE-K architectures under controlled conditions.  
 The goal is to compare centralized, functionally distributed, and ring-based MAPE models using a synthetic workload.
@@ -13,13 +13,13 @@ This is a **prototype for experimental purposes**, not a production-ready system
   Flink job that computes the n-th prime number (synthetic CPU-intensive workload).
 
 - `centralized-mape/`  
-  Centralized MAPE-K implementation.
+  Centralized MAPE implementation.
 
 - `mape-*/`  
-  Functionally distributed MAPE-K implementation.
+  Functionally distributed MAPE implementation.
 
 - `mape-ring/`  
-  Ring-based (peer-to-peer) MAPE-K implementation.
+  Ring-based (peer-to-peer) MAPE implementation.
 
 ---
 
