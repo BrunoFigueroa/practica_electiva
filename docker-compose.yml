@@ -1,0 +1,182 @@
+version: "3.9"
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
+
+  flink-jobmanager:
+    image: apache/flink:1.18.1
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+
+  taskmanager_1:
+    image: apache/flink:1.18.1
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+
+  taskmanager_2:
+    image: apache/flink:1.18.1
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+
+  taskmanager_3:
+    image: apache/flink:1.18.1
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+  
+  taskmanager_4:
+    image: apache/flink:1.18.1
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=8
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+
+
+#  flink-job:
+#    build: ./nthprime
+#    depends_on:
+#      - kafka
+#      - flink-jobmanager
+#      - flink-taskmanager
+#    volumes:
+#      - ./output:/opt/output
+
+  producer:
+    build: ./producer
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+
+#  mape-centralized:
+#    build: ./centralized-mape
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#    volumes:
+#      - ./output:/app/output
+
+#  mape-m:
+#    build: ./mape-M
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#    volumes:
+#      - ./output:/app/output
+#    ports:
+#      - "3001:3000"
+#  
+#  mape-a:
+#    build: ./mape-A
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#    volumes:
+#      - ./output:/app/output
+#    ports:
+#      - "3002:3000"
+#
+#  mape-p:
+#    build: ./mape-P
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#    volumes:
+#      - ./output:/app/output
+#    ports:
+#      - "3003:3000"
+#
+#  mape-e:
+#    build: ./mape-E
+#    depends_on:
+#      kafka:
+#        condition: service_healthy
+#    volumes:
+#      - ./output:/app/output
+#    ports:
+#      - "3004:3000"
+
+  mape-ring-1:
+    build: ./mape-ring
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+    environment:
+      - MAPE_ID=1
+      - NEXT_MAPE_URL=http://mape-ring-2:4000/ring
+
+  mape-ring-2:
+    build: ./mape-ring
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+    environment:
+      - MAPE_ID=2
+      - NEXT_MAPE_URL=http://mape-ring-3:4000/ring
+
+  mape-ring-3:
+    build: ./mape-ring
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+    environment:
+      - MAPE_ID=3
+      - NEXT_MAPE_URL=http://mape-ring-4:4000/ring
+
+  mape-ring-4:
+    build: ./mape-ring
+    depends_on:
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+    environment:
+      - MAPE_ID=4
+      - NEXT_MAPE_URL=http://mape-ring-1:4000/ring

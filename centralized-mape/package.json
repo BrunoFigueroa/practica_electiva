@@ -1,0 +1,10 @@
+{
+  "name": "mape-controller",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "kafkajs": "^2.x",
+    "node-fetch": "^3.x",
+    "form-data": "^4.x"
+  }
+}
